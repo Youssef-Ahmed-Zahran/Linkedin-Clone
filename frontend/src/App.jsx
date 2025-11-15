@@ -1,0 +1,57 @@
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  ScrollRestoration,
+} from "react-router-dom";
+
+// Pages
+import Navbar from "./components/global/Navbar";
+import Home from "./pages/home/Home";
+import Register from "./pages/auth/Register/Register";
+import Login from "./pages/auth/login/Login";
+import PrivateRoute from "./components/protected-roures/PrivateRoute";
+import AuthRoute from "./components/protected-roures/AuthRoute";
+
+const App = () => {
+  const Layout = () => {
+    return (
+      <div className="min-h-screen bg-[#F3F2EF]">
+        {/* Navigation */}
+        <Navbar />
+        <ScrollRestoration />
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 py-6">
+          <Outlet />
+        </main>
+      </div>
+    );
+  };
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Layout />,
+      children: [
+        // Auth Routes (only accessible when logged out)
+        {
+          element: <AuthRoute />,
+          children: [
+            { path: "login", element: <Login /> },
+            { path: "register", element: <Register /> },
+          ],
+        },
+
+        // Protected Routes (only accessible when logged in)
+        {
+          element: <PrivateRoute />,
+          children: [{ path: "/", element: <Home /> }],
+        },
+      ],
+    },
+  ]);
+
+  return <RouterProvider router={router} />;
+};
+
+export default App;
