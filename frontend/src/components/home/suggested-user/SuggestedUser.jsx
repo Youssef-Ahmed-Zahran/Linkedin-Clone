@@ -106,14 +106,14 @@ function SuggestedUser({ user }) {
             <button
               onClick={handleAccept}
               disabled={isAccepting}
-              className="rounded-full p-1 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white disabled:opacity-50"
+              className="rounded-full p-1 flex items-center justify-center bg-[#0A66C2] hover:bg-[#004182] text-white disabled:opacity-50"
             >
               <Check size={16} />
             </button>
             <button
               onClick={handleReject}
               disabled={isRejecting}
-              className="rounded-full p-1 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white disabled:opacity-50"
+              className="rounded-full p-1 flex items-center justify-center bg-gray-300 hover:bg-gray-400 text-gray-700 disabled:opacity-50"
             >
               <X size={16} />
             </button>

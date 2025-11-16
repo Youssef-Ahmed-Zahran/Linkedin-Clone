@@ -16,7 +16,7 @@ function Navbar() {
   );
 
   const unreadNotificationCount =
-    notifications?.data?.filter((notif) => !notif.read).length || 0;
+    notifications?.filter((notif) => !notif.read).length || 0;
 
   const unreadConnectionRequestsCount = connectionRequests?.data?.length || 0;
 

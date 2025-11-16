@@ -5,13 +5,16 @@ import {
   ScrollRestoration,
 } from "react-router-dom";
 
+// Protected Routes
+import PrivateRoute from "./components/protected-roures/PrivateRoute";
+import AuthRoute from "./components/protected-roures/AuthRoute";
+
 // Pages
 import Navbar from "./components/global/Navbar";
 import Home from "./pages/home/Home";
 import Register from "./pages/auth/Register/Register";
 import Login from "./pages/auth/login/Login";
-import PrivateRoute from "./components/protected-roures/PrivateRoute";
-import AuthRoute from "./components/protected-roures/AuthRoute";
+import Notifications from "./pages/notifications/Notifications";
 
 const App = () => {
   const Layout = () => {
@@ -45,7 +48,10 @@ const App = () => {
         // Protected Routes (only accessible when logged in)
         {
           element: <PrivateRoute />,
-          children: [{ path: "/", element: <Home /> }],
+          children: [
+            { path: "/", element: <Home /> },
+            { path: "/notifications", element: <Notifications /> },
+          ],
         },
       ],
     },

@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
 import { PostCreation } from "../../components/home/posts/post-creation/PostCreation";
-import Sidebar from "../../components/home/sidebar/Sidebar";
+import Sidebar from "../../components/global/Sidebar";
 import SuggestedUser from "../../components/home/suggested-user/SuggestedUser";
 import Post from "../../components/home/posts/Post";
 
@@ -45,7 +45,9 @@ const HomePage = () => {
       {suggestedUsers?.length > 0 && (
         <div className="col-span-1 lg:col-span-1 hidden lg:block">
           <div className="bg-[#FFFFFF] rounded-lg shadow p-4">
-            <h2 className="font-semibold mb-4 text-black">People you may know</h2>
+            <h2 className="font-semibold mb-4 text-black">
+              People you may know
+            </h2>
             {suggestedUsers?.map((user) => (
               <SuggestedUser key={user._id} user={user} />
             ))}
