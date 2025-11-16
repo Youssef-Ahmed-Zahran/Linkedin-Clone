@@ -9,6 +9,7 @@ const {
   createComment,
   deleteComment,
   likePost,
+  sharePost,
 } = require("../controllers/post.controller");
 
 router.get("/", verifyToken, getFeedPosts);
@@ -18,5 +19,6 @@ router.get("/:id", verifyToken, getPostById);
 router.post("/:id/comment", verifyToken, createComment);
 router.delete("/:id/delete/:commentId", verifyToken, deleteComment);
 router.post("/:id/like", verifyToken, likePost);
+router.post("/:id/share", verifyToken, sharePost);
 
 module.exports = router;

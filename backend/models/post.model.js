@@ -7,13 +7,17 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     content: {
       type: String,
     },
+
     image: {
       type: String,
     },
+
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
     comments: [
       {
         content: { type: String },
@@ -21,7 +25,14 @@ const postSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+
+    sharedPost: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+      default: null,
+    },
   },
+
   { timestamps: true }
 );
 

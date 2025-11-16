@@ -18,6 +18,13 @@ const getFeedPosts = asyncHandler(async (req, res) => {
     })
       .populate("author", "name username profilePicture headline")
       .populate("comments.user", "name profilePicture")
+      .populate({
+        path: "sharedPost",
+        populate: {
+          path: "author",
+          select: "name username profilePicture headline",
+        },
+      })
       .sort({ createdAt: -1 });
 
     res.status(200).json(posts);
@@ -280,6 +287,73 @@ const likePost = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ *   @desc   Share Post
+ *   @route  /api/v1/posts/:id/share
+ *   @method  POST
+ *   @access  public
+ */
+const sharePost = asyncHandler(async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const userId = req.user._id;
+    const { content } = req.body; // Optional message when sharing
+
+    // Find the original post
+    const originalPost = await Post.findById(postId).populate(
+      "author",
+      "name username profilePicture headline"
+    );
+
+    if (!originalPost) {
+      return res.status(404).json({ error: "Post not found!" });
+    }
+
+    // Create and save the new post
+    const sharedPost = new Post({
+      author: userId,
+      content: content || "",
+      sharedPost: postId,
+    });
+
+    await sharedPost.save();
+
+    // Populate the shared post
+    const populatedSharedPost = await Post.findById(sharedPost._id)
+      .populate("author", "name username profilePicture headline")
+      .populate({
+        path: "sharedPost",
+        select: "content image createdAt likes comments",
+        populate: {
+          path: "author",
+          select: "name username profilePicture headline",
+        },
+      });
+
+    // Create a notification ONLY if the original post author is NOT the current user
+    if (originalPost.author._id.toString() !== userId.toString()) {
+      const newNotification = new Notification({
+        recipient: originalPost.author._id,
+        type: "share",
+        relatedUser: userId,
+        relatedPost: postId,
+      });
+
+      // Fire and forget (faster response)
+      newNotification
+        .save()
+        .catch((err) =>
+          console.error("Error saving notification share post:", err)
+        );
+    }
+
+    res.status(201).json(populatedSharedPost);
+  } catch (error) {
+    console.error("Error in sharePost controller:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = {
   getFeedPosts,
   createPost,
@@ -288,4 +362,5 @@ module.exports = {
   createComment,
   deleteComment,
   likePost,
+  sharePost,
 };

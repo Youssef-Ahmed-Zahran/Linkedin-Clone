@@ -21,7 +21,7 @@ export default function Sidebar({ user }) {
         </Link>
         <p className="text-[#5E5E5E]">{user.headline}</p>
         <p className="text-[#5E5E5E] text-xs">
-          {user.connections.length} connections
+          {user.connections?.length || 0} connections
         </p>
       </div>
       <div className="border-t border-[#F3F2EF] p-4">

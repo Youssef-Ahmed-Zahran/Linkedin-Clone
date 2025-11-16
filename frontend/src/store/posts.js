@@ -35,6 +35,13 @@ const likePost = async (postId) => {
   return response.data;
 };
 
+const sharePost = async ({ postId, content }) => {
+  const response = await axiosInstance.post(`/posts/${postId}/share`, {
+    content,
+  });
+  return response.data;
+};
+
 // Comment Section
 const createComment = async ({ postId, content }) => {
   const response = await axiosInstance.post(`/posts/${postId}/comment`, {
@@ -99,6 +106,22 @@ export const useLikePost = (postId) => {
 
   return useMutation({
     mutationFn: () => likePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: FEEDPOSTS_QUERY_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [SINGLEPOST_QUERY_KEY, postId],
+      });
+    },
+  });
+};
+
+export const useSharePost = (postId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ content }) => sharePost({ postId, content }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: FEEDPOSTS_QUERY_KEY,
