@@ -27,22 +27,26 @@ function RegisterForm() {
       password,
     };
 
-    registerUser(userData, {
-      onSuccess: () => {
-        toast.success("Account created successfully!");
-        setName("");
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        navigate("/login");
-      },
-      onError: (error) => {
-        const errorMessage =
-          error.response?.data?.message ||
-          "Registration failed. Please try again.";
-        toast.error(errorMessage);
-      },
-    });
+    try {
+      registerUser(userData, {
+        onSuccess: () => {
+          toast.success("Account created successfully! ✅");
+          setName("");
+          setUsername("");
+          setEmail("");
+          setPassword("");
+          navigate("/login");
+        },
+        onError: (error) => {
+          const errorMessage =
+            error.response?.data?.message ||
+            "Registration failed. Please try again.";
+          toast.error(errorMessage);
+        },
+      });
+    } catch (error) {
+      console.error("Error in register user:", error);
+    }
   };
 
   return (

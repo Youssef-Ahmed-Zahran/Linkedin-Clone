@@ -86,28 +86,26 @@ const acceptConnectionRequest = asyncHandler(async (req, res) => {
     }
 
     request.status = "accepted";
-    await request.save();
 
-    // Add me to who send request to his connections.
-    await User.findByIdAndUpdate(request.sender._id, {
-      $addToSet: { connections: userId },
-    });
+    // Run all 4 operations in parallel!
+    await Promise.all([
+      request.save(),
+      User.findByIdAndUpdate(request.sender._id, {
+        $addToSet: { connections: userId },
+      }),
 
-    // Add who send request to my connections.
-    await User.findByIdAndUpdate(userId, {
-      $addToSet: { connections: request.sender._id },
-    });
+      User.findByIdAndUpdate(userId, {
+        $addToSet: { connections: request.sender._id },
+      }),
 
-    const notification = new Notification({
-      recipient: request.sender._id,
-      type: "connectionAccepted",
-      relatedUser: userId,
-    });
-
-    await notification.save();
+      new Notification({
+        recipient: request.sender._id,
+        type: "connectionAccepted",
+        relatedUser: userId,
+      }).save(),
+    ]);
 
     res.status(200).json(request);
-
     // TODO: send email
   } catch (error) {
     console.error("Error in acceptConnectionRequest controller:", error);
@@ -216,12 +214,14 @@ const removeConnection = asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const currentUserId = req.user._id;
 
-    await User.findByIdAndUpdate(currentUserId, {
-      $pull: { connections: userId },
-    });
-    await User.findByIdAndUpdate(userId, {
-      $pull: { connections: currentUserId },
-    });
+    await Promise.all([
+      User.findByIdAndUpdate(currentUserId, {
+        $pull: { connections: userId },
+      }),
+      User.findByIdAndUpdate(userId, {
+        $pull: { connections: currentUserId },
+      }),
+    ]);
 
     res.json({ message: "Connection removed" });
   } catch (error) {

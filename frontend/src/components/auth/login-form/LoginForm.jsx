@@ -17,22 +17,27 @@ function LoginForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    loginUser(
-      { username, password },
-      {
-        onSuccess: () => {
-          toast.success("Loggedin successfully! ✅");
-          setUsername("");
-          setPassword("");
-          navigate("/");
-        },
-        onError: (error) => {
-          const errorMessage =
-            error.response?.data?.message || "Login failed. Please try again.";
-          toast.error(errorMessage);
-        },
-      }
-    );
+    try {
+      loginUser(
+        { username, password },
+        {
+          onSuccess: () => {
+            toast.success("Loggedin successfully! ✅");
+            setUsername("");
+            setPassword("");
+            navigate("/");
+          },
+          onError: (error) => {
+            const errorMessage =
+              error.response?.data?.message ||
+              "Login failed. Please try again.";
+            toast.error(errorMessage);
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error in login user:", error);
+    }
   };
 
   return (

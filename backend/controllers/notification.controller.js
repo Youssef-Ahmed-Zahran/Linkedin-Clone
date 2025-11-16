@@ -1,8 +1,6 @@
 const { Notification } = require("../models/notification.model");
 const asyncHandler = require("express-async-handler");
 
-// Http Methods / Verbs
-
 /**
  *   @desc   Get User Notifications
  *   @route  /api/v1/notifications
@@ -26,26 +24,21 @@ const getUserNotifications = asyncHandler(async (req, res) => {
 /**
  *   @desc   Mark Notification As Read
  *   @route  /api/v1/notifications/:id/read
- *   @method  GET
+ *   @method  PUT
  *   @access  public
  */
 const markNotificationAsRead = asyncHandler(async (req, res) => {
   const notificationId = req.params.id;
   try {
-    let notification = await Notification.findById(notificationId);
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, recipient: req.user._id },
+      { read: true },
+      { new: true }
+    );
 
     if (!notification) {
       return res.status(404).json({ message: "Notification not found!" });
     }
-
-    notification = await Notification.findByIdAndUpdate(
-      {
-        _id: notificationId,
-        recipient: req.user._id,
-      },
-      { read: true },
-      { new: true }
-    );
 
     res.status(200).json(notification);
   } catch (error) {
@@ -57,19 +50,17 @@ const markNotificationAsRead = asyncHandler(async (req, res) => {
 /**
  *   @desc   Delete Notification
  *   @route  /api/v1/notifications/:id
- *   @method  GET
+ *   @method  DELETE
  *   @access  public
  */
 const deleteNotification = asyncHandler(async (req, res) => {
   const notificationId = req.params.id;
   try {
-    let notification = await Notification.findById(notificationId);
+    const notification = await Notification.findByIdAndDelete(notificationId);
 
     if (!notification) {
       return res.status(404).json({ message: "Notification not found!" });
     }
-
-    await Notification.findByIdAndDelete(notificationId);
 
     res.status(200).json({ message: "Notification deleted successfully!" });
   } catch (error) {

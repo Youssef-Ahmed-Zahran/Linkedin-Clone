@@ -69,26 +69,61 @@ const updateCurrentUser = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Hash password if provided
+    // Whitelist allowed fields
+    const allowedUpdates = [
+      "name",
+      "username",
+      "headline",
+      "about",
+      "location",
+      "profilePicture",
+      "bannerImg",
+      "skills",
+      "experience",
+      "education",
+    ];
+    const updates = {};
+
+    allowedUpdates.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    // Handle password separately
     if (req.body.password) {
       const salt = await bcrypt.genSalt(10);
-      req.body.password = await bcrypt.hash(req.body.password, salt);
+      updates.password = await bcrypt.hash(req.body.password, salt);
     }
 
+    // Upload images in parallel
+    const uploadPromises = [];
+
     if (req.body.profilePicture) {
-      const result = await cloudinary.uploader.upload(req.body.profilePicture);
-      req.body.profilePicture = result.secure_url;
+      uploadPromises.push(
+        cloudinary.uploader.upload(req.body.profilePicture).then((result) => {
+          updates.profilePicture = result.secure_url;
+        })
+      );
     }
 
     if (req.body.bannerImg) {
-      const result = await cloudinary.uploader.upload(req.body.bannerImg);
-      req.body.bannerImg = result.secure_url;
+      uploadPromises.push(
+        cloudinary.uploader.upload(req.body.bannerImg).then((result) => {
+          updates.bannerImg = result.secure_url;
+        })
+      );
+    }
+
+    // Wait for all uploads to complete
+    if (uploadPromises.length > 0) {
+      await Promise.all(uploadPromises);
     }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
-      { $set: req.body },
-      { new: true, runValidators: true } // runValidators is good for safety
+      { $set: updates },
+      { new: true, runValidators: true }
     ).select("-password");
 
     return res.status(200).json(updatedUser);

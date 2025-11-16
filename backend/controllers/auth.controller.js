@@ -3,12 +3,10 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../utils/createToken");
 
-// Http Methods / Verbs
-
 /**
  *   @desc   Register New User
  *   @route  /api/v1/auth/signup
- *   @method  Post
+ *   @method  POST
  *   @access  public
  */
 const register = asyncHandler(async (req, res) => {
@@ -19,12 +17,16 @@ const register = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Please fill all the inputs." });
     }
 
-    const existingEmail = await User.findOne({ email });
+    // Check both email and username in parallel
+    const [existingEmail, existingUsername] = await Promise.all([
+      User.findOne({ email }),
+      User.findOne({ username }),
+    ]);
+
     if (existingEmail) {
       return res.status(400).json({ message: "Email already exists." });
     }
 
-    const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists." });
     }
@@ -51,7 +53,7 @@ const register = asyncHandler(async (req, res) => {
 
     res.status(201).json({ message: "User registered successfully" });
 
-    // todo: send welcome email
+    // TODO: send welcome email
   } catch (error) {
     console.error("Error in signup controller:", error);
     res.status(500).json({ message: "Internal server error." });
@@ -61,7 +63,7 @@ const register = asyncHandler(async (req, res) => {
 /**
  *   @desc   Login User
  *   @route  /api/v1/auth/login
- *   @method  Post
+ *   @method  POST
  *   @access  public
  */
 const login = asyncHandler(async (req, res) => {
@@ -85,7 +87,7 @@ const login = asyncHandler(async (req, res) => {
 
     generateToken(res, user._id);
 
-    res.status(201).json({ message: "User logedin successfully" });
+    res.status(200).json({ message: "User logged in successfully" });
   } catch (error) {
     console.error("Error in login controller:", error);
     res.status(500).json({ message: "Internal server error." });
@@ -95,21 +97,18 @@ const login = asyncHandler(async (req, res) => {
 /**
  *   @desc   Logout User
  *   @route  /api/v1/auth/logout
- *   @method  Post
+ *   @method  POST
  *   @access  public
  */
 const logout = asyncHandler(async (req, res) => {
   res.clearCookie("jwt");
-
-  res.status(200).json({
-    message: "Logged out successfully.",
-  });
+  res.status(200).json({ message: "Logged out successfully." });
 });
 
 /**
  *   @desc   Get Current User
  *   @route  /api/users/me
- *   @method  Get
+ *   @method  GET
  *   @access  private (authenticated user)
  */
 const getCurrentUser = asyncHandler(async (req, res) => {

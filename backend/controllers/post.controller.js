@@ -14,7 +14,7 @@ const { Notification } = require("../models/notification.model");
 const getFeedPosts = asyncHandler(async (req, res) => {
   try {
     const posts = await Post.find({
-      author: { $in: req.user.connections },
+      author: { $in: [...req.user.connections, req.user._id] },
     })
       .populate("author", "name username profilePicture headline")
       .populate("comments.user", "name profilePicture")
@@ -80,20 +80,22 @@ const deletePost = asyncHandler(async (req, res) => {
     }
 
     // check if the current user is the author of the post
-    if (post.author.toString() !== userId.toString()) {
+    if (post.author._id.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({ message: "You are not authorized to delete this post!" });
     }
 
-    // delete the image from cloudinary as well!
+    // USE PROMISE.ALL HERE - delete image and post at the same time!
+    const deletePromises = [Post.findByIdAndDelete(postId)];
+
     if (post.image) {
-      await cloudinary.uploader.destroy(
-        post.image.split("/").pop().split(".")[0]
+      deletePromises.push(
+        cloudinary.uploader.destroy(post.image.split("/").pop().split(".")[0])
       );
     }
 
-    await Post.findByIdAndDelete(postId);
+    await Promise.all(deletePromises);
 
     res.status(200).json({ message: "Post deleted successfully!" });
   } catch (error) {
@@ -152,8 +154,8 @@ const createComment = asyncHandler(async (req, res) => {
       { new: true }
     ).populate("author", "name email username headline profilePicture");
 
-    // create a notification if the comment owner is not the post owner
-    if (post.author.toString() !== userId.toString()) {
+    // Save notification without blocking response
+    if (post.author._id.toString() !== userId.toString()) {
       const newNotification = new Notification({
         recipient: createdCommentPost.author,
         type: "comment",
@@ -161,14 +163,18 @@ const createComment = asyncHandler(async (req, res) => {
         relatedPost: postId,
       });
 
-      await newNotification.save();
-
-      // TODO: send email
+      // Fire and forget (faster response)
+      newNotification
+        .save()
+        .catch((err) =>
+          console.error("Error saving notification create comment:", err)
+        );
+      // TODO: When you add email, include it here too
     }
 
     res.status(200).json(createdCommentPost);
   } catch (error) {
-    console.error("Error in deletePost controller:", error);
+    console.error("Error in createComment controller:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });
@@ -248,7 +254,7 @@ const likePost = asyncHandler(async (req, res) => {
       post.likes.push(userId);
 
       // create a notification if the post owner is not the user who liked
-      if (post.author.toString() !== userId.toString()) {
+      if (post.author._id.toString() !== userId.toString()) {
         const newNotification = new Notification({
           recipient: post.author,
           type: "like",
@@ -256,9 +262,16 @@ const likePost = asyncHandler(async (req, res) => {
           relatedPost: postId,
         });
 
-        await newNotification.save();
+        // Fire and forget (faster response)
+        newNotification
+          .save()
+          .catch((err) =>
+            console.error("Error saving notification like post:", err)
+          );
       }
     }
+
+    await post.save();
 
     res.status(200).json(post);
   } catch (error) {
