@@ -7,11 +7,11 @@ import Post from "../../components/home/posts/Post";
 // React Query
 import { useCurrentUser } from "../../store/auth";
 import { useGetFeedPosts } from "../../store/posts";
-import { useGetSuggestedConnections } from "../../store/users";
+import { useGetSuggestedUsers } from "../../store/users";
 
 const HomePage = () => {
   const { data: currentUser } = useCurrentUser();
-  const { data: suggestedUsers } = useGetSuggestedConnections();
+  const { data: suggestedUsers } = useGetSuggestedUsers(currentUser._id);
   const { data: posts } = useGetFeedPosts();
 
   return (
@@ -44,8 +44,8 @@ const HomePage = () => {
 
       {suggestedUsers?.length > 0 && (
         <div className="col-span-1 lg:col-span-1 hidden lg:block">
-          <div className="bg-secondary rounded-lg shadow p-4">
-            <h2 className="font-semibold mb-4">People you may know</h2>
+          <div className="bg-[#FFFFFF] rounded-lg shadow p-4">
+            <h2 className="font-semibold mb-4 text-black">People you may know</h2>
             {suggestedUsers?.map((user) => (
               <SuggestedUser key={user._id} user={user} />
             ))}

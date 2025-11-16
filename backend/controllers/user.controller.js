@@ -23,7 +23,7 @@ const getSuggestedConnections = asyncHandler(async (req, res) => {
       },
     })
       .select("name username profilePicture headline")
-      .limit(3);
+      .limit(5);
 
     res.status(200).json(suggestedUser);
   } catch (error) {

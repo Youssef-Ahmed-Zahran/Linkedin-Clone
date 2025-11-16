@@ -69,7 +69,7 @@ const acceptConnectionRequest = asyncHandler(async (req, res) => {
       .populate("recipient", "name username");
 
     if (!request) {
-      return res.status(400).json({ message: "Request not found!" });
+      return res.status(404).json({ message: "Request not found!" });
     }
 
     // check if the req is for the current user
@@ -87,26 +87,30 @@ const acceptConnectionRequest = asyncHandler(async (req, res) => {
 
     request.status = "accepted";
 
-    // Run all 4 operations in parallel!
+    // Update connections and save request
     await Promise.all([
       request.save(),
       User.findByIdAndUpdate(request.sender._id, {
         $addToSet: { connections: userId },
       }),
-
       User.findByIdAndUpdate(userId, {
         $addToSet: { connections: request.sender._id },
       }),
+    ]);
 
-      new Notification({
+    // Send response immediately
+    res.status(200).json({ message: "Connection accepted successfully" });
+
+    try {
+      await new Notification({
         recipient: request.sender._id,
         type: "connectionAccepted",
         relatedUser: userId,
-      }).save(),
-    ]);
-
-    res.status(200).json(request);
-    // TODO: send email
+      }).save();
+    } catch (notifError) {
+      console.error("Error creating notification:", notifError);
+      // Don't throw - just log it
+    }
   } catch (error) {
     console.error("Error in acceptConnectionRequest controller:", error);
     res.status(500).json({ message: "Internal server error." });
@@ -127,14 +131,14 @@ const rejectConnectionRequest = asyncHandler(async (req, res) => {
     const request = await connectionRequest.findById(requestId);
 
     if (!request) {
-      return res.status(400).json({ message: "Request not found!" });
+      return res.status(404).json({ message: "Request not found!" });
     }
 
     // check if the req is for the current user
-    if (request.recipient._id.toString() !== userId.toString()) {
+    if (request.recipient.toString() !== userId.toString()) {
       return res
         .status(403)
-        .json({ message: "Not authorized to accept this request" });
+        .json({ message: "Not authorized to reject this request" });
     }
 
     if (request.status !== "pending") {
@@ -146,7 +150,18 @@ const rejectConnectionRequest = asyncHandler(async (req, res) => {
     request.status = "rejected";
     await request.save();
 
+    // Send response immediately
     res.status(200).json({ message: "Connection request rejected" });
+
+    try {
+      await new Notification({
+        recipient: request.sender,
+        type: "connectionRejected",
+        relatedUser: userId,
+      }).save();
+    } catch (notifError) {
+      console.error("Error creating rejection notification:", notifError);
+    }
   } catch (error) {
     console.error("Error in rejectConnectionRequest controller:", error);
     res.status(500).json({ message: "Internal server error." });
@@ -256,7 +271,7 @@ const getConnectionStatus = asyncHandler(async (req, res) => {
     });
 
     if (pendingRequest) {
-      if (pendingRequest.sender.toString() === currentUserId.toString()) {
+      if (pendingRequest.sender._id.toString() === currentUserId.toString()) {
         return res.json({ status: "pending" });
       } else {
         return res.json({ status: "received", requestId: pendingRequest._id });

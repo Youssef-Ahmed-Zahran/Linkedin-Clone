@@ -8,7 +8,7 @@ export const SINGLEPROFILE_QUERY_KEY = ["singleProfile"];
 
 // *********************************** ((API Functions)) **************************************** //
 
-const getSuggestedConnections = async () => {
+const getSuggestedUsers = async () => {
   const response = await axiosInstance.get("/users/suggestions");
   return response.data;
 };
@@ -25,10 +25,10 @@ const updateCurrentUser = async (userData) => {
 
 // *********************************** ((React-Query Hooks)) **************************************** //
 
-export const useGetSuggestedConnections = (userId) => {
+export const useGetSuggestedUsers = (userId) => {
   return useQuery({
     queryKey: SUGGESTIONS_QUERY_KEY,
-    queryFn: getSuggestedConnections,
+    queryFn: getSuggestedUsers,
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes
     cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes

@@ -9,7 +9,7 @@ export const CONNECTION_STATUS_QUERY_KEY = ["connectionStatus"];
 // *********************************** ((API Functions)) **************************************** //
 
 const sendConnectionRequest = async (userId) => {
-  const response = await axiosInstance.post(`/connections/${userId}`);
+  const response = await axiosInstance.post(`/connections/request/${userId}`);
   return response.data;
 };
 
@@ -45,52 +45,53 @@ const getConnectionStatus = async (userId) => {
 
 // *********************************** ((React-Query Hooks)) **************************************** //
 
-export const useSendConnectionRequest = () => {
+export const useSendConnectionRequest = (userId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId) => sendConnectionRequest(userId),
+    mutationFn: () => sendConnectionRequest(userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: CONNECTIONREQUESTS_QUERY_KEY,
+      // Refetch immediately
+      queryClient.refetchQueries({
+        queryKey: [CONNECTION_STATUS_QUERY_KEY, userId],
       });
       queryClient.invalidateQueries({
-        queryKey: CONNECTION_STATUS_QUERY_KEY,
+        queryKey: CONNECTIONREQUESTS_QUERY_KEY,
       });
     },
   });
 };
 
-export const useAcceptConnectionRequest = () => {
+export const useAcceptConnectionRequest = (userId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (requestId) => acceptConnectionRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({
+        queryKey: [CONNECTION_STATUS_QUERY_KEY, userId],
+      });
+      queryClient.invalidateQueries({
         queryKey: CONNECTIONREQUESTS_QUERY_KEY,
       });
       queryClient.invalidateQueries({
         queryKey: USER_CONNECTIONS_QUERY_KEY,
       });
-      queryClient.invalidateQueries({
-        queryKey: CONNECTION_STATUS_QUERY_KEY,
-      });
     },
   });
 };
 
-export const useRejectConnectionRequest = () => {
+export const useRejectConnectionRequest = (userId) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (requestId) => rejectConnectionRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: CONNECTIONREQUESTS_QUERY_KEY,
+        queryKey: [CONNECTION_STATUS_QUERY_KEY, userId],
       });
       queryClient.invalidateQueries({
-        queryKey: CONNECTION_STATUS_QUERY_KEY,
+        queryKey: CONNECTIONREQUESTS_QUERY_KEY,
       });
     },
   });
@@ -130,7 +131,7 @@ export const useRemoveConnection = () => {
 
 export const useGetConnectionStatus = (userId) => {
   return useQuery({
-    queryKey: [...CONNECTION_STATUS_QUERY_KEY, userId],
+    queryKey: [CONNECTION_STATUS_QUERY_KEY, userId],
     queryFn: () => getConnectionStatus(userId),
     enabled: !!userId,
   });
