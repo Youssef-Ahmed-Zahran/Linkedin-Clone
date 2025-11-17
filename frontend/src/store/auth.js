@@ -5,7 +5,7 @@ import {
   CONNECTIONREQUESTS_QUERY_KEY,
   USER_CONNECTIONS_QUERY_KEY,
 } from "./connectionRequest";
-
+import { SUGGESTIONS_QUERY_KEY } from "./users";
 // Query Keys
 export const AUTHUSER_QUERY_KEY = ["authUser"];
 
@@ -102,6 +102,7 @@ export const useLogoutUser = () => {
       queryClient.invalidateQueries({
         queryKey: CONNECTION_STATUS_QUERY_KEY,
       });
+      queryClient.invalidateQueries({ queryKey: SUGGESTIONS_QUERY_KEY });
     },
   });
 };
