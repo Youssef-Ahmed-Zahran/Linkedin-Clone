@@ -1,10 +1,10 @@
 import { Users } from "lucide-react";
-import { PostCreation } from "../../components/home/posts/post-creation/PostCreation";
+import { PostCreation } from "../../components/post/post-creation/PostCreation";
 import Sidebar from "../../components/global/Sidebar";
 import SuggestedUser from "../../components/home/suggested-user/SuggestedUser";
-import Post from "../../components/home/posts/Post";
+import Post from "../../components/post/Post";
 
-// React Query
+// React Queryx
 import { useCurrentUser } from "../../store/auth";
 import { useGetFeedPosts } from "../../store/posts";
 import { useGetSuggestedUsers } from "../../store/users";

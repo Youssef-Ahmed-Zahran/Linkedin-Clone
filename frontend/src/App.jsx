@@ -16,6 +16,7 @@ import Register from "./pages/auth/Register/Register";
 import Login from "./pages/auth/login/Login";
 import Notifications from "./pages/notifications/Notifications";
 import Network from "./pages/network/Network";
+import SinglePost from "./pages/post/SinglePost";
 import Profile from "./pages/profile/Profile";
 
 const App = () => {
@@ -54,6 +55,7 @@ const App = () => {
             { path: "/", element: <Home /> },
             { path: "/notifications", element: <Notifications /> },
             { path: "/network", element: <Network /> },
+            { path: "/post/:postId", element: <SinglePost /> },
             { path: "/profile/:username", element: <Profile /> },
           ],
         },

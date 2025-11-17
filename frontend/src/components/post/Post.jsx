@@ -12,17 +12,17 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-import PostAction from "./PostAction";
+import PostAction from "./post-action/PostAction";
 
 // React Query
-import { useCurrentUser } from "../../../store/auth";
+import { useCurrentUser } from "../../store/auth";
 import {
   useCreateComment,
   useDeleteComment,
   useDeletePost,
   useLikePost,
   useSharePost,
-} from "../../../store/posts";
+} from "../../store/posts";
 
 function Post({ post }) {
   const { data: currentUser } = useCurrentUser();

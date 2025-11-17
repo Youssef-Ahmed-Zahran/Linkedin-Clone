@@ -3,7 +3,6 @@ import { axiosInstance } from "../lib/axios";
 
 // Query Keys
 export const FEEDPOSTS_QUERY_KEY = ["posts"];
-export const SINGLEPOST_QUERY_KEY = ["singlePost"];
 
 // *********************************** ((API Functions)) **************************************** //
 
@@ -69,7 +68,7 @@ export const useGetFeedPosts = () => {
 
 export const useGetPostById = (postId) => {
   return useQuery({
-    queryKey: [...SINGLEPOST_QUERY_KEY, postId],
+    queryKey: [FEEDPOSTS_QUERY_KEY, postId],
     queryFn: () => getPostById(postId),
     enabled: !!postId,
   });
@@ -107,11 +106,13 @@ export const useLikePost = (postId) => {
   return useMutation({
     mutationFn: () => likePost(postId),
     onSuccess: () => {
+      // Invalidate the feed to update like count in feed view
       queryClient.invalidateQueries({
         queryKey: FEEDPOSTS_QUERY_KEY,
       });
+      // Invalidate the single post to update like count in single post view
       queryClient.invalidateQueries({
-        queryKey: [SINGLEPOST_QUERY_KEY, postId],
+        queryKey: [FEEDPOSTS_QUERY_KEY, postId],
       });
     },
   });
@@ -123,11 +124,13 @@ export const useSharePost = (postId) => {
   return useMutation({
     mutationFn: ({ content }) => sharePost({ postId, content }),
     onSuccess: () => {
+      // Invalidate the feed to show the new shared post
       queryClient.invalidateQueries({
         queryKey: FEEDPOSTS_QUERY_KEY,
       });
+      // Invalidate the specific post (in case share count is tracked)
       queryClient.invalidateQueries({
-        queryKey: [SINGLEPOST_QUERY_KEY, postId],
+        queryKey: [FEEDPOSTS_QUERY_KEY, postId],
       });
     },
   });
@@ -140,11 +143,13 @@ export const useCreateComment = (postId) => {
   return useMutation({
     mutationFn: ({ content }) => createComment({ postId, content }),
     onSuccess: () => {
+      // Invalidate the feed to update comment count in feed view
       queryClient.invalidateQueries({
         queryKey: FEEDPOSTS_QUERY_KEY,
       });
+      // Invalidate the single post to show the new comment in single post view
       queryClient.invalidateQueries({
-        queryKey: [SINGLEPOST_QUERY_KEY, postId],
+        queryKey: [FEEDPOSTS_QUERY_KEY, postId],
       });
     },
   });
@@ -156,11 +161,13 @@ export const useDeleteComment = (postId) => {
   return useMutation({
     mutationFn: (commentId) => deleteComment({ postId, commentId }),
     onSuccess: () => {
+      // Invalidate the feed to update comment count in feed view
       queryClient.invalidateQueries({
         queryKey: FEEDPOSTS_QUERY_KEY,
       });
+      // Invalidate the single post to remove the deleted comment in single post view
       queryClient.invalidateQueries({
-        queryKey: [SINGLEPOST_QUERY_KEY, postId],
+        queryKey: [FEEDPOSTS_QUERY_KEY, postId],
       });
     },
   });

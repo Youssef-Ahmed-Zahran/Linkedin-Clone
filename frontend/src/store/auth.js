@@ -1,11 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
-import {
-  CONNECTION_STATUS_QUERY_KEY,
-  CONNECTIONREQUESTS_QUERY_KEY,
-  USER_CONNECTIONS_QUERY_KEY,
-} from "./connectionRequest";
-import { SUGGESTIONS_QUERY_KEY } from "./users";
+
 // Query Keys
 export const AUTHUSER_QUERY_KEY = ["authUser"];
 
@@ -51,13 +46,6 @@ export const useRegisterUser = () => {
       queryClient.setQueryData(AUTHUSER_QUERY_KEY, data);
 
       queryClient.invalidateQueries({ queryKey: AUTHUSER_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CONNECTIONREQUESTS_QUERY_KEY });
-      queryClient.invalidateQueries({
-        queryKey: USER_CONNECTIONS_QUERY_KEY,
-      });
-      queryClient.invalidateQueries({
-        queryKey: CONNECTION_STATUS_QUERY_KEY,
-      });
     },
   });
 };
@@ -71,15 +59,6 @@ export const useLoginUser = () => {
       queryClient.setQueryData(AUTHUSER_QUERY_KEY, data);
 
       queryClient.invalidateQueries({ queryKey: AUTHUSER_QUERY_KEY });
-      queryClient.invalidateQueries({
-        queryKey: CONNECTIONREQUESTS_QUERY_KEY,
-      });
-      queryClient.invalidateQueries({
-        queryKey: USER_CONNECTIONS_QUERY_KEY,
-      });
-      queryClient.invalidateQueries({
-        queryKey: CONNECTION_STATUS_QUERY_KEY,
-      });
     },
   });
 };
@@ -91,18 +70,7 @@ export const useLogoutUser = () => {
     mutationFn: logoutUser,
     onSuccess: () => {
       queryClient.setQueryData(AUTHUSER_QUERY_KEY, null);
-
-      queryClient.invalidateQueries({ queryKey: AUTHUSER_QUERY_KEY });
-      queryClient.invalidateQueries({
-        queryKey: CONNECTIONREQUESTS_QUERY_KEY,
-      });
-      queryClient.invalidateQueries({
-        queryKey: USER_CONNECTIONS_QUERY_KEY,
-      });
-      queryClient.invalidateQueries({
-        queryKey: CONNECTION_STATUS_QUERY_KEY,
-      });
-      queryClient.invalidateQueries({ queryKey: SUGGESTIONS_QUERY_KEY });
+      queryClient.clear();
     },
   });
 };

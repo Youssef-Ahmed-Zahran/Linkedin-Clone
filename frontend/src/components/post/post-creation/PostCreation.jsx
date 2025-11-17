@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { Image, Loader } from "lucide-react";
 
 // React Query
-import { useCreatePost } from "../../../../store/posts";
+import { useCreatePost } from "../../../store/posts.js";
 
 export const PostCreation = ({ user }) => {
   const [content, setContent] = useState("");
