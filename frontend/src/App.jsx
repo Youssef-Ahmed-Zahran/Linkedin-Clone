@@ -15,6 +15,8 @@ import Home from "./pages/home/Home";
 import Register from "./pages/auth/Register/Register";
 import Login from "./pages/auth/login/Login";
 import Notifications from "./pages/notifications/Notifications";
+import Network from "./pages/network/Network";
+import Profile from "./pages/profile/Profile";
 
 const App = () => {
   const Layout = () => {
@@ -51,6 +53,8 @@ const App = () => {
           children: [
             { path: "/", element: <Home /> },
             { path: "/notifications", element: <Notifications /> },
+            { path: "/network", element: <Network /> },
+            { path: "/profile/:username", element: <Profile /> },
           ],
         },
       ],
