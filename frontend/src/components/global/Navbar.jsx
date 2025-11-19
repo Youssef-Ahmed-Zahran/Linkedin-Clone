@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-import { Bell, Home, LogOut, User, Users } from "lucide-react";
+import {
+  Bell,
+  Home,
+  LogOut,
+  User,
+  Users,
+  MessageSquareMore,
+} from "lucide-react";
 
 // React Query
 import { useCurrentUser, useLogoutUser } from "../../store/auth";
@@ -54,6 +61,7 @@ function Navbar() {
                   <Home size={20} />
                   <span className="text-xs hidden md:block">Home</span>
                 </Link>
+
                 <Link
                   to="/network"
                   className="text-neutral flex flex-col items-center relative"
@@ -69,6 +77,15 @@ function Navbar() {
                     </span>
                   )}
                 </Link>
+
+                <Link
+                  to={"/messages"}
+                  className="text-neutral flex flex-col items-center"
+                >
+                  <MessageSquareMore size={20} />
+                  <span className="text-xs hidden md:block">Messages</span>
+                </Link>
+
                 <Link
                   to="/notifications"
                   className="text-neutral flex flex-col items-center relative"
@@ -84,6 +101,7 @@ function Navbar() {
                     </span>
                   )}
                 </Link>
+
                 <Link
                   to={`/profile/${currentUser.username}`}
                   className="text-neutral flex flex-col items-center"
