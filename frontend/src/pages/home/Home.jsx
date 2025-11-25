@@ -4,7 +4,7 @@ import Sidebar from "../../components/global/Sidebar";
 import SuggestedUser from "../../components/home/suggested-user/SuggestedUser";
 import Post from "../../components/post/Post";
 
-// React Queryx
+// React Query
 import { useCurrentUser } from "../../store/auth";
 import { useGetFeedPosts } from "../../store/posts";
 import { useGetSuggestedUsers } from "../../store/users";

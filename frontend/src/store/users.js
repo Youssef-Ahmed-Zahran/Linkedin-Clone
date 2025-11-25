@@ -4,7 +4,7 @@ import { AUTHUSER_QUERY_KEY } from "./auth";
 
 // Query Keys
 export const SUGGESTIONS_QUERY_KEY = ["suggestionUsers"];
-export const SINGLEPROFILE_QUERY_KEY = ["singleProfile"];
+export const USERPROFILE_QUERY_KEY = ["userProfile"];
 
 // *********************************** ((API Functions)) **************************************** //
 
@@ -37,7 +37,7 @@ export const useGetSuggestedUsers = (userId) => {
 
 export const useGetPublicProfile = (username) => {
   return useQuery({
-    queryKey: [...SINGLEPROFILE_QUERY_KEY, username],
+    queryKey: [USERPROFILE_QUERY_KEY, username],
     queryFn: () => getPublicProfile(username),
     enabled: !!username,
     retry: 2,
@@ -48,7 +48,7 @@ export const useUpdateCurrentUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateCurrentUser,
+    mutationFn: (userData) => updateCurrentUser(userData),
     onSuccess: (data) => {
       // Invalidate auth user query
       queryClient.invalidateQueries({
@@ -58,7 +58,7 @@ export const useUpdateCurrentUser = () => {
       // Invalidate the specific user's profile
       if (data?.username) {
         queryClient.invalidateQueries({
-          queryKey: [...SINGLEPROFILE_QUERY_KEY, data.username],
+          queryKey: [USERPROFILE_QUERY_KEY, data.username],
         });
       }
     },
