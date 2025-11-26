@@ -201,17 +201,35 @@ const getConnectionRequests = asyncHandler(async (req, res) => {
 const getUserConnections = asyncHandler(async (req, res) => {
   try {
     const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    const userConnections = await User.findById(userId).populate(
-      "connections",
-      "name username profilePicture headline connections"
-    );
+    const user = await User.findById(userId);
 
-    if (!userConnections) {
+    if (!user) {
       return res.status(400).json({ message: "User not found!" });
     }
 
-    res.status(200).json(userConnections);
+    // Get total count
+    const totalConnections = user.connections.length;
+
+    // Get paginated connections
+    const connectionIds = user.connections.slice(skip, skip + limit);
+
+    const connections = await User.find({
+      _id: { $in: connectionIds },
+    }).select("name username profilePicture headline connections");
+
+    res.status(200).json({
+      connections,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalConnections / limit),
+        totalConnections,
+        hasMore: skip + limit < totalConnections,
+      },
+    });
   } catch (error) {
     console.error("Error in getUserConnections controller:", error);
     res.status(500).json({ message: "Internal server error." });

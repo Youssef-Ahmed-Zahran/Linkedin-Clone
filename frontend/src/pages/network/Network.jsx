@@ -1,5 +1,6 @@
 import { UserPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useEffect, useRef } from "react";
 import Sidebar from "../../components/global/Sidebar";
 import FriendRequest from "../../components/network/FriendRequest";
 import UserCard from "../../components/network/UserCard";
@@ -19,16 +20,46 @@ const Network = () => {
     error,
   } = useGetConnectionRequests(currentUser?._id);
 
-  const { data: userConnections, isLoading: connectionsLoading } =
-    useGetUserConnections(currentUser?._id);
+  const {
+    data: userConnectionsData,
+    isLoading: connectionsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetUserConnections(currentUser?._id);
+
+  // Intersection Observer for infinite scroll
+  const observerTarget = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   // Handle error
   if (error) {
     toast.error(error?.response?.data?.message || "Failed to fetch requests");
   }
 
-  // Extract connections array from the user object
-  const connections = userConnections?.connections || [];
+  // Flatten all pages of connections
+  const connections =
+    userConnectionsData?.pages.flatMap((page) => page.connections) || [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -91,6 +122,13 @@ const Network = () => {
                     isConnection={true}
                   />
                 ))}
+              </div>
+
+              {/* Infinite scroll trigger */}
+              <div ref={observerTarget} className="py-4 text-center">
+                {isFetchingNextPage && (
+                  <p className="text-gray-600">Loading more connections...</p>
+                )}
               </div>
             </div>
           ) : (

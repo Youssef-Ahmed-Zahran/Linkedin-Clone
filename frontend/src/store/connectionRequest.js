@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
 
 // Query Keys
@@ -28,8 +33,13 @@ const getConnectionRequests = async () => {
   return response.data;
 };
 
-const getUserConnections = async () => {
-  const response = await axiosInstance.get("/connections");
+const getUserConnections = async ({ pageParam = 1 }) => {
+  const response = await axiosInstance.get("/connections", {
+    params: {
+      page: pageParam,
+      limit: 10,
+    },
+  });
   return response.data;
 };
 
@@ -109,10 +119,15 @@ export const useGetConnectionRequests = (userId) => {
 };
 
 export const useGetUserConnections = (userId) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: USER_CONNECTIONS_QUERY_KEY,
     queryFn: getUserConnections,
     enabled: !!userId,
+    getNextPageParam: (lastPage) => {
+      const { currentPage, hasMore } = lastPage.pagination;
+      return hasMore ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 };
 
