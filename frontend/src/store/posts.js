@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
 
 // Query Keys
@@ -7,8 +12,13 @@ export const FEEDPOSTS_QUERY_KEY = ["posts"];
 // *********************************** ((API Functions)) **************************************** //
 
 // Post Section
-const getFeedPosts = async () => {
-  const response = await axiosInstance.get("/posts");
+const getFeedPosts = async ({ pageParam = 1 }) => {
+  const response = await axiosInstance.get("/posts", {
+    params: {
+      page: pageParam,
+      limit: 10,
+    },
+  });
   return response.data;
 };
 
@@ -60,9 +70,17 @@ const deleteComment = async ({ postId, commentId }) => {
 
 // Post Section
 export const useGetFeedPosts = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: FEEDPOSTS_QUERY_KEY,
     queryFn: getFeedPosts,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.hasMore
+        ? lastPage.pagination.currentPage + 1
+        : undefined;
+    },
+    staleTime: 2 * 60 * 1000, // Data is fresh for 2 minutes
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 };
 

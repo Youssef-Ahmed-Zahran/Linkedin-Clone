@@ -13,6 +13,16 @@ const { Notification } = require("../models/notification.model");
  */
 const getFeedPosts = asyncHandler(async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10; // 10 posts per page
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination metadata
+    const totalCount = await Post.countDocuments({
+      author: { $in: [...req.user.connections, req.user._id] },
+    });
+
+    // Fetch posts with pagination
     const posts = await Post.find({
       author: { $in: [...req.user.connections, req.user._id] },
     })
@@ -25,9 +35,19 @@ const getFeedPosts = asyncHandler(async (req, res) => {
           select: "name username profilePicture headline",
         },
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.status(200).json(posts);
+    res.status(200).json({
+      posts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalPosts: totalCount,
+        hasMore: page < Math.ceil(totalCount / limit),
+      },
+    });
   } catch (error) {
     console.error("Error in getFeedPosts controller:", error);
     res.status(500).json({ message: "Internal server error." });
