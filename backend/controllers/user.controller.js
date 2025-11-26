@@ -13,19 +13,40 @@ const cloudinary = require("../lib/cloudinary");
  */
 const getSuggestedConnections = asyncHandler(async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
     const currentUser = await User.findById(req.user._id).select("connections");
 
-    // find users who are not already connected, and also do not recommend our own profile!!
-    const suggestedUser = await User.find({
+    // Get total count for hasMore calculation
+    const totalCount = await User.countDocuments({
+      _id: {
+        $ne: req.user._id,
+        $nin: currentUser.connections,
+      },
+    });
+
+    // Find users with pagination
+    const suggestedUsers = await User.find({
       _id: {
         $ne: req.user._id,
         $nin: currentUser.connections,
       },
     })
       .select("name username profilePicture headline")
-      .limit(5);
+      .skip(skip)
+      .limit(limit);
 
-    res.status(200).json(suggestedUser);
+    res.status(200).json({
+      users: suggestedUsers,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalUsers: totalCount,
+        hasMore: page < Math.ceil(totalCount / limit),
+      },
+    });
   } catch (error) {
     console.error("Error in get suggested connections controller:", error);
     res.status(500).json({ message: "Internal server error." });
