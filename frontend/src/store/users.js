@@ -44,7 +44,7 @@ export const useGetPublicProfile = (username) => {
   });
 };
 
-export const useUpdateCurrentUser = () => {
+export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

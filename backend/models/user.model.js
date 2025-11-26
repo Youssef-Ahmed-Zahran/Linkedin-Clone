@@ -52,13 +52,16 @@ const userSchema = new mongoose.Schema(
     skills: [String],
 
     experience: [
-      {
-        title: String,
-        company: String,
-        startDate: Date,
-        endDate: Date,
-        description: String,
-      },
+      new mongoose.Schema(
+        {
+          title: String,
+          company: String,
+          startDate: Date,
+          endDate: Date,
+          description: String,
+        },
+        { _id: true } // allow _id inside array items
+      ),
     ],
 
     education: [

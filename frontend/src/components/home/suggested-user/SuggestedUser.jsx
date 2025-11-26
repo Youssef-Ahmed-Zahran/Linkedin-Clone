@@ -64,7 +64,7 @@ function SuggestedUser({ user }) {
     });
   };
 
-  const renderButton = () => {
+  const renderConnectionButton = () => {
     if (isLoading) {
       return (
         <button
@@ -161,7 +161,7 @@ function SuggestedUser({ user }) {
           <p className="text-xs text-[#5E5E5E]">{user.headline}</p>
         </div>
       </Link>
-      {renderButton()}
+      {renderConnectionButton()}
     </div>
   );
 }

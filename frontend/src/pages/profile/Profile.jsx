@@ -1,10 +1,15 @@
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import ProfileHeader from "../../components/profile/ProfileHeader";
+import AboutSection from "../../components/profile/AboutSection";
+import ExperienceSection from "../../components/profile/ExperienceSection";
+import EducationSection from "../../components/profile/EducationSection";
+import SkillsSection from "../../components/profile/SkillsSection";
 
 // React Query
 import { useCurrentUser } from "../../store/auth";
-import { useGetPublicProfile, useUpdateCurrentUser } from "../../store/users";
+import { useGetPublicProfile, useUpdateUserProfile } from "../../store/users";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
   const { username } = useParams();
@@ -20,14 +25,8 @@ const Profile = () => {
       },
     });
   // update profile
-  const { mutate: updateProfile } = useUpdateCurrentUser({
-    onSuccess: () => {
-      toast.success("Profile updated successfully");
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update profile");
-    },
-  });
+  const { mutate: updateProfile, isPending: isUpdating } =
+    useUpdateUserProfile();
 
   if (isLoading || isUserProfileLoading) return null;
 
@@ -35,37 +34,66 @@ const Profile = () => {
   const userData = isOwnProfile ? currentUser : userProfile;
 
   const handleSave = (updatedData) => {
-    updateProfile(updatedData);
+    updateProfile(updatedData, {
+      onSuccess: () => {
+        toast.success("Profile updated successfully");
+      },
+      onError: (error) => {
+        toast.error(
+          error?.response?.data?.message || "Failed to update profile"
+        );
+      },
+    });
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <ProfileHeader
-        userData={userData}
-        isOwnProfile={isOwnProfile}
-        onSave={handleSave}
-      />
-      {/* <AboutSection
-        userData={userData}
-        isOwnProfile={isOwnProfile}
-        onSave={handleSave}
-      />
-      <ExperienceSection
-        userData={userData}
-        isOwnProfile={isOwnProfile}
-        onSave={handleSave}
-      />
-      <EducationSection
-        userData={userData}
-        isOwnProfile={isOwnProfile}
-        onSave={handleSave}
-      />
-      <SkillsSection
-        userData={userData}
-        isOwnProfile={isOwnProfile}
-        onSave={handleSave}
-      /> */}
-    </div>
+    <>
+      {/* LOADER – appears when ANYTHING is saving */}
+      {isUpdating && (
+        <div className="fixed inset-0 bg-white bg-opacity-95 flex items-center justify-center z-9999">
+          <div className="text-center">
+            <Loader2 className="w-16 h-16 text-[#0A66C2] animate-spin mx-auto mb-4" />
+            <p className="text-xl font-semibold text-gray-800">
+              Updating profile...
+            </p>
+            <p className="text-gray-600 mt-2">Please wait</p>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-4xl mx-auto p-4">
+        <ProfileHeader
+          userData={userData}
+          isOwnProfile={isOwnProfile}
+          onSave={handleSave}
+          isSaving={isUpdating}
+        />
+        <AboutSection
+          userData={userData}
+          isOwnProfile={isOwnProfile}
+          onSave={handleSave}
+          isSaving={isUpdating}
+        />
+        <ExperienceSection
+          userData={userData}
+          isOwnProfile={isOwnProfile}
+          onSave={handleSave}
+          isSaving={isUpdating}
+        />
+        <EducationSection
+          userData={userData}
+          isOwnProfile={isOwnProfile}
+          onSave={handleSave}
+          isSaving={isUpdating}
+        />
+        <SkillsSection
+          userData={userData}
+          isOwnProfile={isOwnProfile}
+          onSave={handleSave}
+          isSaving={isUpdating}
+        />
+      </div>
+    </>
   );
 };
 

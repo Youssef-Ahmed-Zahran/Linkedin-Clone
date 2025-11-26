@@ -93,6 +93,9 @@ export const useRejectConnectionRequest = (userId) => {
       queryClient.invalidateQueries({
         queryKey: CONNECTIONREQUESTS_QUERY_KEY,
       });
+      queryClient.invalidateQueries({
+        queryKey: USER_CONNECTIONS_QUERY_KEY,
+      });
     },
   });
 };
