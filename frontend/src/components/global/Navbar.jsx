@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Bell,
   Home,
@@ -16,6 +16,7 @@ import { useGetConnectionRequests } from "../../store/connectionRequest.js";
 function Navbar() {
   const { data: currentUser } = useCurrentUser();
   const { mutate: logoutUser } = useLogoutUser();
+  const location = useLocation();
 
   const { data: notifications } = useGetUserNotifications(currentUser?._id);
   const { data: connectionRequests } = useGetConnectionRequests(
@@ -30,12 +31,27 @@ function Navbar() {
   const formatCount = (count) => (count > 99 ? "99+" : count);
 
   const handleLogout = () => {
-    // ✨ Show confirmation dialog
     const confirmed = window.confirm("Are you sure you want to logout?");
-
     if (confirmed) {
       logoutUser();
     }
+  };
+
+  // Helper function to check if a path is active
+  const isActive = (path) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  // Helper function to get link classes
+  const getLinkClasses = (path) => {
+    const baseClasses = "flex flex-col items-center transition-colors";
+    const activeClasses = "text-[#0A66C2] font-semibold";
+    const inactiveClasses = "text-neutral hover:text-[#0A66C2]";
+
+    return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`;
   };
 
   return (
@@ -54,17 +70,14 @@ function Navbar() {
           <div className="flex items-center gap-2 md:gap-6">
             {currentUser ? (
               <>
-                <Link
-                  to={"/"}
-                  className="text-neutral flex flex-col items-center"
-                >
+                <Link to={"/"} className={`${getLinkClasses("/")} relative`}>
                   <Home size={20} />
                   <span className="text-xs hidden md:block">Home</span>
                 </Link>
 
                 <Link
                   to="/network"
-                  className="text-neutral flex flex-col items-center relative"
+                  className={`${getLinkClasses("/network")} relative`}
                 >
                   <Users size={20} />
                   <span className="text-xs hidden md:block">My Network</span>
@@ -80,7 +93,7 @@ function Navbar() {
 
                 <Link
                   to={"/messages"}
-                  className="text-neutral flex flex-col items-center"
+                  className={`${getLinkClasses("/messages")} relative`}
                 >
                   <MessageSquareMore size={20} />
                   <span className="text-xs hidden md:block">Messages</span>
@@ -88,7 +101,7 @@ function Navbar() {
 
                 <Link
                   to="/notifications"
-                  className="text-neutral flex flex-col items-center relative"
+                  className={`${getLinkClasses("/notifications")} relative`}
                 >
                   <Bell size={20} />
                   <span className="text-xs hidden md:block">Notifications</span>
@@ -104,11 +117,12 @@ function Navbar() {
 
                 <Link
                   to={`/profile/${currentUser.username}`}
-                  className="text-neutral flex flex-col items-center"
+                  className={`${getLinkClasses("/profile")} relative`}
                 >
                   <User size={20} />
                   <span className="text-xs hidden md:block">Me</span>
                 </Link>
+
                 <button
                   className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
                   onClick={handleLogout}
