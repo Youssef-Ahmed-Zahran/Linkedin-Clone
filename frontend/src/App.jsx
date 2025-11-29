@@ -18,6 +18,7 @@ import Notifications from "./pages/notifications/Notifications";
 import Network from "./pages/network/Network";
 import SinglePost from "./pages/post/SinglePost";
 import Profile from "./pages/profile/Profile";
+import Chat from "./pages/chat/Chat";
 
 const App = () => {
   const Layout = () => {
@@ -57,6 +58,7 @@ const App = () => {
             { path: "/network", element: <Network /> },
             { path: "/post/:postId", element: <SinglePost /> },
             { path: "/profile/:username", element: <Profile /> },
+            { path: "/chat", element: <Chat /> },
           ],
         },
       ],

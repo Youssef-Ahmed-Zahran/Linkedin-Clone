@@ -61,7 +61,8 @@ function Navbar() {
           <div className="flex items-center space-x-4">
             <Link to="/">
               <img
-                className="h-8 rounded"
+                // className="h-8 rounded"
+                style={{ height: "40px" }}
                 src="/small-logo.png"
                 alt="LinkedIn"
               />
@@ -92,11 +93,11 @@ function Navbar() {
                 </Link>
 
                 <Link
-                  to={"/messages"}
-                  className={`${getLinkClasses("/messages")} relative`}
+                  to={"/chat"}
+                  className={`${getLinkClasses("/chat")} relative`}
                 >
                   <MessageSquareMore size={20} />
-                  <span className="text-xs hidden md:block">Messages</span>
+                  <span className="text-xs hidden md:block">Messaging</span>
                 </Link>
 
                 <Link

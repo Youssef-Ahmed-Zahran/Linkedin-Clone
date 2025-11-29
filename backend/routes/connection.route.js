@@ -1,4 +1,5 @@
 const express = require("express");
+const router = express.Router();
 const { verifyToken } = require("../middlewares/auth.middleware");
 const {
   sendConnectionRequest,
@@ -9,7 +10,6 @@ const {
   removeConnection,
   getConnectionStatus,
 } = require("../controllers/connection.controller");
-const router = express.Router();
 
 router.post("/request/:userId", verifyToken, sendConnectionRequest);
 router.put("/accept/:requestId", verifyToken, acceptConnectionRequest);
