@@ -7,6 +7,7 @@ import {
   Users,
   MessageSquareMore,
 } from "lucide-react";
+import useUnreadMessagesCount from "../../hooks/useUnreadMessagesCount";
 
 // React Query
 import { useCurrentUser, useLogoutUser } from "../../store/auth";
@@ -22,6 +23,9 @@ function Navbar() {
   const { data: connectionRequests } = useGetConnectionRequests(
     currentUser?._id
   );
+
+  // Get unread messages count
+  const unreadMessagesCount = useUnreadMessagesCount();
 
   const unreadNotificationCount =
     notifications?.filter((notif) => !notif.read).length || 0;
@@ -61,7 +65,6 @@ function Navbar() {
           <div className="flex items-center space-x-4">
             <Link to="/">
               <img
-                // className="h-8 rounded"
                 style={{ height: "40px" }}
                 src="/small-logo.png"
                 alt="LinkedIn"
@@ -98,6 +101,14 @@ function Navbar() {
                 >
                   <MessageSquareMore size={20} />
                   <span className="text-xs hidden md:block">Messaging</span>
+                  {unreadMessagesCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 md:right-4 bg-red-500 text-white text-xs 
+										rounded-full size-3 md:size-4 flex items-center justify-center"
+                    >
+                      {formatCount(unreadMessagesCount)}
+                    </span>
+                  )}
                 </Link>
 
                 <Link

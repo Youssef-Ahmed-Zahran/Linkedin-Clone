@@ -139,8 +139,37 @@ const getConversations = asyncHandler(async (req, res) => {
   }
 });
 
+const getUnreadMessagesCount = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find all conversations where the user is a participant
+    const conversations = await Conversation.find({
+      participants: userId,
+    });
+
+    let unreadCount = 0;
+
+    // Count unread messages across all conversations
+    for (const conversation of conversations) {
+      const count = await Message.countDocuments({
+        conversationId: conversation._id,
+        sender: { $ne: userId }, // Not sent by current user
+        seen: false, // Not seen
+      });
+      unreadCount += count;
+    }
+
+    res.status(200).json({ count: unreadCount });
+  } catch (error) {
+    console.error("Error in getUnreadMessagesCount:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 module.exports = {
   getConversations,
   getMessages,
   sendMessage,
+  getUnreadMessagesCount,
 };

@@ -38,7 +38,13 @@ io.on("connection", (socket) => {
         { _id: conversationId },
         { $set: { "lastMessage.seen": true } }
       );
+
+      // Emit to the OTHER user (sender of the messages)
       io.to(userSocketMap[userId]).emit("messagesSeen", { conversationId });
+
+      // IMPORTANT: Also emit to YOURSELF (the one who marked messages as seen)
+      // This triggers your own useUnreadMessagesCount hook to refetch the count
+      socket.emit("messagesSeen", { conversationId });
     } catch (error) {
       console.log(error);
     }

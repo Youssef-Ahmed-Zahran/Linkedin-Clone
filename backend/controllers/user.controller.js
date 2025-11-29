@@ -77,7 +77,7 @@ const getPublicProfile = asyncHandler(async (req, res) => {
   }
 });
 
-const getUserProfile = async (req, res) => {
+const serchUserProfile = async (req, res) => {
   // We will fetch user profile either with username or userId
   // query is either username or userId
   const { query } = req.params;
@@ -188,5 +188,5 @@ module.exports = {
   getSuggestedConnections,
   getPublicProfile,
   updateCurrentUser,
-  getUserProfile,
+  serchUserProfile,
 };

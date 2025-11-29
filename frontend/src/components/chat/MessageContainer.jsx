@@ -39,6 +39,25 @@ function MessageContainer() {
           return [...prev, message];
         });
 
+        // Mark this new message as seen immediately by calling backend
+        const markAsSeen = async () => {
+          try {
+            await axiosInstance.put(
+              `/messages/seen/${selectedConversation.userId}`
+            );
+
+            // Then emit socket event
+            socket.emit("markMessagesAsSeen", {
+              conversationId: selectedConversation._id,
+              userId: selectedConversation.userId,
+            });
+          } catch (error) {
+            console.error("Error marking new message as seen:", error);
+          }
+        };
+
+        markAsSeen();
+
         // Play notification sound if window not focused
         if (!document.hasFocus()) {
           const sound = new Audio(messageSound);
@@ -107,12 +126,36 @@ function MessageContainer() {
         );
         if (res.data) {
           setMessages(res.data);
+
+          // Check if there are any unread messages from the other user
+          const hasUnreadMessages = res.data.some(
+            (msg) => msg.sender !== currentUser._id && !msg.seen
+          );
+
+          if (hasUnreadMessages) {
+            // Call backend API to mark messages as seen
+            try {
+              await axiosInstance.put(
+                `/messages/seen/${selectedConversation.userId}`
+              );
+
+              // Then emit socket event
+              if (socket) {
+                socket.emit("markMessagesAsSeen", {
+                  conversationId: selectedConversation._id,
+                  userId: selectedConversation.userId,
+                });
+              }
+            } catch (error) {
+              console.error("Error marking messages as seen:", error);
+            }
+          }
         } else {
           toast.error("Messages not found");
         }
       } catch (err) {
         // Don't show error for new conversations
-        if (!err.response?.status === 404) {
+        if (err.response?.status !== 404) {
           toast.error(err.message || "Could not load messages");
         }
       } finally {
@@ -127,6 +170,8 @@ function MessageContainer() {
     selectedConversation?.userId,
     selectedConversation?._id,
     selectedConversation?.isNewConversation,
+    currentUser?._id,
+    socket,
   ]);
 
   return (

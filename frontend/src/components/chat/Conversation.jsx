@@ -14,6 +14,12 @@ function Conversation({ conversation, isOnline }) {
   );
   const isSelected = selectedConversation?._id === conversation._id;
 
+  // Check if there's an unread message
+  const hasUnreadMessage =
+    lastMessage.sender &&
+    lastMessage.sender !== currentUser?._id &&
+    !lastMessage.seen;
+
   const handleClick = () =>
     setSelectedConversation({
       _id: conversation._id,
@@ -30,6 +36,8 @@ function Conversation({ conversation, isOnline }) {
         ${
           isSelected
             ? "bg-blue-600 text-white"
+            : hasUnreadMessage
+            ? "bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600"
             : "hover:bg-gray-50 dark:hover:bg-gray-700"
         }
       `}
@@ -49,23 +57,42 @@ function Conversation({ conversation, isOnline }) {
         <div className="flex items-center justify-between">
           <div
             className={`font-medium truncate ${
-              isSelected ? "text-white" : "text-gray-800 dark:text-gray-100"
+              isSelected
+                ? "text-white"
+                : hasUnreadMessage
+                ? "text-gray-900 dark:text-white font-semibold"
+                : "text-gray-800 dark:text-gray-100"
             }`}
           >
             {user.username}
           </div>
+
+          {/* Unread badge */}
+          {hasUnreadMessage && !isSelected && (
+            <div className="flex-shrink-0 w-2.5 h-2.5 bg-blue-600 rounded-full" />
+          )}
         </div>
 
         <div
           className={`flex items-center gap-2 mt-1 text-sm ${
-            isSelected ? "text-white/80" : "text-gray-500 dark:text-gray-300"
+            isSelected
+              ? "text-white/80"
+              : hasUnreadMessage
+              ? "text-gray-700 dark:text-gray-200 font-medium"
+              : "text-gray-500 dark:text-gray-300"
           }`}
         >
           {/* Show checkmark if current user sent the last message */}
           {currentUser?._id === lastMessage.sender && (
             <div
               className={`flex-shrink-0 ${
-                lastMessage.seen ? "text-blue-400" : ""
+                lastMessage.seen
+                  ? isSelected
+                    ? "text-white"
+                    : "text-blue-400"
+                  : isSelected
+                  ? "text-white/60"
+                  : "text-gray-400"
               }`}
             >
               <BsCheck2All size={14} />
@@ -77,7 +104,7 @@ function Conversation({ conversation, isOnline }) {
             <div className="flex items-center gap-1.5 flex-shrink-0">
               <BsFillImageFill size={14} />
               <span>Image</span>
-            </div> 
+            </div>
           ) : lastMessage.text ? (
             <div className="truncate">
               {lastMessage.text.length > 50
