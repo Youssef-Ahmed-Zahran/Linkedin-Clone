@@ -4,7 +4,7 @@ import Post from "../../components/post/Post";
 import { useCurrentUser } from "../../store/auth";
 import { useGetPostById } from "../../store/posts";
 
-const SinglePost = () => {
+function SinglePost() {
   const { postId } = useParams();
   const { data: currentUser } = useCurrentUser();
 
@@ -24,5 +24,5 @@ const SinglePost = () => {
       </div>
     </div>
   );
-};
+}
 export default SinglePost;

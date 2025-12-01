@@ -11,7 +11,7 @@ import { useCurrentUser } from "../../store/auth";
 import { useGetPublicProfile, useUpdateUserProfile } from "../../store/users";
 import { Loader2 } from "lucide-react";
 
-const Profile = () => {
+function Profile() {
   const { username } = useParams();
   //current user
   const { data: currentUser, isLoading } = useCurrentUser();
@@ -95,6 +95,6 @@ const Profile = () => {
       </div>
     </>
   );
-};
+}
 
 export default Profile;

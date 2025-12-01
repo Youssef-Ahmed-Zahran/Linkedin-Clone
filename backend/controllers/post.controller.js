@@ -196,7 +196,6 @@ const createComment = asyncHandler(async (req, res) => {
         .catch((err) =>
           console.error("Error saving notification create comment:", err)
         );
-      // TODO: When you add email, include it here too
     }
 
     res.status(200).json(createdCommentPost);

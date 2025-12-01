@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-const usePreviewImg = () => {
+function usePreviewImg() {
   const [imgUrl, setImgUrl] = useState(null);
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -19,6 +19,6 @@ const usePreviewImg = () => {
     }
   };
   return { handleImageChange, imgUrl, setImgUrl };
-};
+}
 
 export default usePreviewImg;

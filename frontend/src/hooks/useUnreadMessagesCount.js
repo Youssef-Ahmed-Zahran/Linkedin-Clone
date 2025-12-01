@@ -3,7 +3,7 @@ import { useSocket } from "../context/SocketContext";
 import { useCurrentUser } from "../store/auth";
 import { axiosInstance } from "../lib/axios";
 
-const useUnreadMessagesCount = () => {
+function useUnreadMessagesCount() {
   const [unreadCount, setUnreadCount] = useState(0);
   const { socket } = useSocket();
   const { data: currentUser } = useCurrentUser();
@@ -52,6 +52,6 @@ const useUnreadMessagesCount = () => {
   }, [socket, currentUser?._id]);
 
   return unreadCount;
-};
+}
 
 export default useUnreadMessagesCount;

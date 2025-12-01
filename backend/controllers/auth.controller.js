@@ -52,8 +52,6 @@ const register = asyncHandler(async (req, res) => {
     generateToken(res, user._id);
 
     res.status(201).json({ message: "User registered successfully" });
-
-    // TODO: send welcome email
   } catch (error) {
     console.error("Error in signup controller:", error);
     res.status(500).json({ message: "Internal server error." });

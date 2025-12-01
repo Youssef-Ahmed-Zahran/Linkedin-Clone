@@ -19,7 +19,7 @@ import {
   useMarkNotificationAsRead,
 } from "../../store/notifications";
 
-const Notifications = () => {
+function Notifications() {
   const { data: currentUser } = useCurrentUser();
   const { data: notifications, isLoading } = useGetUserNotifications(
     currentUser?._id
@@ -128,9 +128,7 @@ const Notifications = () => {
           />
         )}
         <div className="flex-1 overflow-hidden">
-          <p className="text-sm text-black truncate">
-            {relatedPost.content}
-          </p>
+          <p className="text-sm text-black truncate">{relatedPost.content}</p>
         </div>
         <ExternalLink size={14} className="text-gray-400" />
       </Link>
@@ -227,6 +225,6 @@ const Notifications = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Notifications;

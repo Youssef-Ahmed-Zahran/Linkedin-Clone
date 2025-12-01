@@ -139,6 +139,12 @@ const getConversations = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ *   @desc   Get Unread Messages
+ *   @route  /api/v1/messages/unread/count
+ *   @method  GET
+ *   @access  public
+ */
 const getUnreadMessagesCount = asyncHandler(async (req, res) => {
   try {
     const userId = req.user._id;

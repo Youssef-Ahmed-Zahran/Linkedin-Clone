@@ -12,7 +12,7 @@ import {
   useGetUserConnections,
 } from "../../store/connectionRequest";
 
-const Network = () => {
+function Network() {
   const { data: currentUser } = useCurrentUser();
   const {
     data: connectionRequests,
@@ -145,6 +145,6 @@ const Network = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Network;

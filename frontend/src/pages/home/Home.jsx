@@ -10,7 +10,7 @@ import { useCurrentUser } from "../../store/auth";
 import { useGetFeedPosts } from "../../store/posts";
 import { useGetSuggestedUsers } from "../../store/users";
 
-const HomePage = () => {
+function HomePage() {
   const { data: currentUser } = useCurrentUser();
 
   // Posts infinite query
@@ -195,6 +195,6 @@ const HomePage = () => {
       )}
     </div>
   );
-};
+}
 
 export default HomePage;
