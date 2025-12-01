@@ -24,8 +24,7 @@ app.use(helmet());
 const corsOptions = {
   origin: [
     "http://localhost:5173",
-    // TODO: Add your deployed frontend URL here after deployment
-    // "https://your-frontend-app.vercel.app"
+    "https://linkedin-clone-frontend-tau.vercel.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
