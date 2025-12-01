@@ -7,7 +7,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 const { app, server } = require("./lib/socket");
 
-// Express Usages
+// Load environment variables
 require("dotenv").config();
 
 // Connection To Database
@@ -19,8 +19,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(logger);
 app.use(helmet());
+
+// CORS Configuration
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    // TODO: Add your deployed frontend URL here after deployment
+    // "https://your-frontend-app.vercel.app"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   exposedHeaders: ["Set-Cookie"],
@@ -40,10 +46,18 @@ app.use("/api/v1/messages", require("./routes/message.routes"));
 app.use(notFound);
 app.use(errorHanlder);
 
-// Running the server - USE SERVER NOT APP
+// Running the server
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () =>
-  console.log(
-    `Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`
-  )
-);
+
+// Only start server if running directly (local development)
+// On Vercel, this won't run because the file is imported as a module
+if (require.main === module) {
+  server.listen(PORT, () =>
+    console.log(
+      `Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`
+    )
+  );
+}
+
+// Export app for Vercel serverless functions
+module.exports = app;
