@@ -3,7 +3,7 @@ import axios from "axios";
 export const axiosInstance = axios.create({
   baseURL:
     import.meta.env.MODE === "development"
-      ? "https://linkedin-clone-backend-alpha.vercel.app"
+      ? "http://localhost:8080/api/v1"
       : "/api/v1",
   withCredentials: true,
 });
