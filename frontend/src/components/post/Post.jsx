@@ -31,12 +31,35 @@ function Post({ post }) {
   const [showShareModal, setShowShareModal] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [shareMessage, setShareMessage] = useState("");
+  const [showFullContent, setShowFullContent] = useState(false);
+  const [showFullOriginalContent, setShowFullOriginalContent] = useState(false);
+
   const isPostOwner = currentUser._id === post.author._id;
   const isLiked = post.likes.includes(currentUser._id);
 
   // Check if this is a shared post
   const isSharedPost = !!post.sharedPost;
   const originalPost = post.sharedPost;
+
+  // Function to check if content needs "Read More"
+  const needsReadMore = (content) => {
+    if (!content) return false;
+    const lines = content.split("\n").length;
+    return lines > 3 || content.length > 300;
+  };
+
+  // Function to truncate content
+  const getTruncatedContent = (content) => {
+    if (!content) return "";
+    const lines = content.split("\n");
+    if (lines.length > 3) {
+      return lines.slice(0, 3).join("\n") + "...";
+    }
+    if (content.length > 300) {
+      return content.substring(0, 300) + "...";
+    }
+    return content;
+  };
 
   const { mutate: deletePost, isPending: isDeletingPost } = useDeletePost();
   const { mutate: createComment, isPending: isAddingComment } =
@@ -164,7 +187,21 @@ function Post({ post }) {
 
           {/* User's message when sharing */}
           {isSharedPost && post.content && (
-            <p className="mb-4 text-black">{post.content}</p>
+            <div className="mb-4">
+              <p className="text-black whitespace-pre-wrap">
+                {showFullContent || !needsReadMore(post.content)
+                  ? post.content
+                  : getTruncatedContent(post.content)}
+              </p>
+              {needsReadMore(post.content) && (
+                <button
+                  onClick={() => setShowFullContent(!showFullContent)}
+                  className="text-[#0A66C2] hover:underline text-sm font-semibold mt-1"
+                >
+                  {showFullContent ? "Show less" : "Read more"}
+                </button>
+              )}
+            </div>
           )}
 
           {/* Original Post Content (if shared) */}
@@ -197,7 +234,24 @@ function Post({ post }) {
               </div>
 
               {/* Original Post Content */}
-              <p className="mb-3 text-black">{originalPost.content}</p>
+              <div className="mb-3">
+                <p className="text-black whitespace-pre-wrap">
+                  {showFullOriginalContent ||
+                  !needsReadMore(originalPost.content)
+                    ? originalPost.content
+                    : getTruncatedContent(originalPost.content)}
+                </p>
+                {needsReadMore(originalPost.content) && (
+                  <button
+                    onClick={() =>
+                      setShowFullOriginalContent(!showFullOriginalContent)
+                    }
+                    className="text-[#0A66C2] hover:underline text-sm font-semibold mt-1"
+                  >
+                    {showFullOriginalContent ? "Show less" : "Read more"}
+                  </button>
+                )}
+              </div>
 
               {/* Original Post Image */}
               {originalPost.image && (
@@ -212,7 +266,21 @@ function Post({ post }) {
             <>
               {/* Regular Post Content (not shared) */}
               {!isSharedPost && post.content && (
-                <p className="mb-4 text-black">{post.content}</p>
+                <div className="mb-4">
+                  <p className="text-black whitespace-pre-wrap">
+                    {showFullContent || !needsReadMore(post.content)
+                      ? post.content
+                      : getTruncatedContent(post.content)}
+                  </p>
+                  {needsReadMore(post.content) && (
+                    <button
+                      onClick={() => setShowFullContent(!showFullContent)}
+                      className="text-[#0A66C2] hover:underline text-sm font-semibold mt-1"
+                    >
+                      {showFullContent ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                </div>
               )}
 
               {!isSharedPost && post.image && (
@@ -324,7 +392,6 @@ function Post({ post }) {
         )}
       </div>
       {/* Share Modal */}
-      {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
@@ -417,7 +484,7 @@ function Post({ post }) {
             </form>
           </div>
         </div>
-      )}{" "}
+      )}
     </>
   );
 }
