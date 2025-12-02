@@ -115,6 +115,12 @@ function Notifications() {
   const renderRelatedPost = (relatedPost) => {
     if (!relatedPost) return null;
 
+    const maxLength = 100;
+    const truncatedContent =
+      relatedPost.content.length > maxLength
+        ? relatedPost.content.substring(0, maxLength) + "..."
+        : relatedPost.content;
+
     return (
       <Link
         to={`/post/${relatedPost._id}`}
@@ -128,7 +134,7 @@ function Notifications() {
           />
         )}
         <div className="flex-1 overflow-hidden">
-          <p className="text-sm text-black truncate">{relatedPost.content}</p>
+          <p className="text-sm text-black">{truncatedContent}</p>
         </div>
         <ExternalLink size={14} className="text-gray-400" />
       </Link>
