@@ -10,6 +10,7 @@ import { useCurrentUser } from "../../store/auth";
 import {
   useGetConnectionRequests,
   useGetUserConnections,
+  useRemoveConnection,
 } from "../../store/connectionRequest";
 
 function Network() {
@@ -27,6 +28,8 @@ function Network() {
     hasNextPage,
     isFetchingNextPage,
   } = useGetUserConnections(currentUser?._id);
+
+  const removeConnectionMutation = useRemoveConnection();
 
   // Intersection Observer for infinite scroll
   const observerTarget = useRef(null);
@@ -56,6 +59,20 @@ function Network() {
   if (error) {
     toast.error(error?.response?.data?.message || "Failed to fetch requests");
   }
+
+  // Handle remove connection
+  const handleRemoveConnection = (userId, userName) => {
+    if (window.confirm(`Are you sure you want to remove ${userName} from your connections?`)) {
+      removeConnectionMutation.mutate(userId, {
+        onSuccess: () => {
+          toast.success("Connection removed successfully");
+        },
+        onError: (error) => {
+          toast.error(error?.response?.data?.message || "Failed to remove connection");
+        },
+      });
+    }
+  };
 
   // Flatten all pages of connections
   const connections =
@@ -120,6 +137,7 @@ function Network() {
                     key={connection._id}
                     user={connection}
                     isConnection={true}
+                    onRemove={handleRemoveConnection}
                   />
                 ))}
               </div>

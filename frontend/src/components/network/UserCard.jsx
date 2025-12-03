@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function UserCard({ user, isConnection }) {
+function UserCard({ user, isConnection, onRemove }) {
   return (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center transition-all hover:shadow-md">
       <Link
@@ -12,15 +12,27 @@ function UserCard({ user, isConnection }) {
           alt={user.name}
           className="w-24 h-24 rounded-full object-cover mb-4"
         />
-        <h3 className="font-semibold text-lg text-center text-black">{user.name}</h3>
+        <h3 className="font-semibold text-lg text-center text-black">
+          {user.name}
+        </h3>
       </Link>
       <p className="text-gray-600 text-center">{user.headline}</p>
       <p className="text-sm text-gray-500 mt-2">
         {user.connections?.length} connections
       </p>
-      <button className="mt-4 bg-[#0A66C2] text-white px-4 py-2 rounded-md hover:bg-blue-500 transition-colors w-full">
-        {isConnection ? "Connected" : "Connect"}
-      </button>
+
+      {isConnection && onRemove ? (
+        <button
+          onClick={() => onRemove(user._id, user.name)}
+          className="mt-4 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors w-full"
+        >
+          Remove Connection
+        </button>
+      ) : (
+        <button className="mt-4 bg-[#0A66C2] text-white px-4 py-2 rounded-md hover:bg-blue-500 transition-colors w-full">
+          Connect
+        </button>
+      )}
     </div>
   );
 }
